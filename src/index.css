@@ -1,0 +1,21 @@
+/* Reset Vite's starter styles that clamp/center the app */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: block;           /* was flex/grid in Vite template */
+  background: #f3f4f6;
+}
+
+#root {
+  max-width: none;          /* remove 1280px cap */
+  text-align: initial;      /* remove center text */
+}
+
+/* sensible defaults */
+* { box-sizing: border-box; }
+img, canvas, svg, video { max-width: 100%; height: auto; }
