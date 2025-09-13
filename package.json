@@ -1,14 +1,15 @@
 {
   "name": "my-family-planner",
-  "homepage": "https://clhsu.github.io/financial-planner",
-  "private": true,
   "version": "0.1.0",
+  "private": true,
   "type": "module",
+  "homepage": "https://clhsu66.github.io/my-family-planner",
   "scripts": {
     "dev": "vite",
+    "build": "vite build",
     "build:web": "vite build",
     "build:tauri": "cross-env VITE_BASE=./ vite build",
-    "preview": "vite preview"
+    "preview": "vite preview --port 4173"
   },
   "dependencies": {
     "mathjs": "^14.6.0",
