@@ -1,0 +1,32 @@
+# Node / Vite
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# OS
+.DS_Store
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+
+# Tauri / Rust (if you use Tauri)
+src-tauri/target/
+target/
+src-tauri/.cargo/
+src-tauri/Cargo.lock
+
+# Coverage / misc
+coverage/
