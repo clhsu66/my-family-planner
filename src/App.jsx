@@ -852,20 +852,28 @@ export default function App(){
     <div style={{ background:'#f3f4f6' }}>
       <div style={panel.container}>
         <style>{`
-          @media (max-width: 1100px) {
-            .main-grid {
-              grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)) !important;
-            }
-          }
-          @media (min-width: 1101px) {
-            .sticky-col {
-              position: sticky;
-              top: 16px;
-              align-self: start;
-              max-height: calc(100vh - 32px);
-              overflow: auto;
-            }
-          }
+  
+
+            @media (max-width: 1100px) {
+    .main-grid {
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)) !important;
+    }
+  }
+
+  @media (min-width: 1101px) {
+    .sticky-col {
+      position: sticky;
+      top: 16px;
+      align-self: start;
+      max-height: calc(100vh - 32px);
+      overflow: auto !important;                /* make it scroll */
+      -webkit-overflow-scrolling: touch;        /* smooth scrolling on iOS */
+    }
+  }
+
+
+
+
         `}</style>
 
         <h1 style={panel.h1}>Household Retirement Planner</h1>
