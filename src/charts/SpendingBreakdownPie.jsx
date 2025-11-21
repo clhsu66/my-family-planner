@@ -1,20 +1,37 @@
 import React, { useMemo } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip } from "recharts";
 import { PALETTE } from "../utils/palette";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
 
 // simple $ formatter — swap if you already have one you prefer
 const fmt = (n) =>
   (n || n === 0)
-    ? n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+    ? n.toLocaleString(undefined, {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      })
     : "-";
+
+// Capitalize the first letter of each word for display
+function toTitleCase(str = "") {
+  return str
+    .toString()
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.slice(1));
+}
 
 export default function SpendingBreakdownPie({ breakdown = {}, annualSpend = 0, height = 280 }) {
   const data = useMemo(() => {
-    const entries = Object.entries(breakdown || {}).filter(([_, v]) => typeof v === "number" && v > 0);
+    const entries = Object.entries(breakdown || {}).filter(
+      ([_, v]) => typeof v === "number" && v > 0
+    );
     const sum = entries.reduce((s, [, v]) => s + v, 0) || 1;
 
     // normalize if user inputs don’t sum to 1.0
-    const norm = entries.map(([name, pct]) => {
+    const norm = entries.map(([rawName, pct]) => {
+      const name = toTitleCase(rawName);
       const weight = pct / sum;
       const value = annualSpend * weight;
       return { name, pct: weight, value }; // value = dollars for the pie
@@ -25,8 +42,15 @@ export default function SpendingBreakdownPie({ breakdown = {}, annualSpend = 0, 
     return norm;
   }, [breakdown, annualSpend]);
 
-  const COLORS = PALETTE?.categorical || [
-    "#2563eb","#16a34a","#f59e0b","#ef4444","#8b5cf6","#0ea5e9","#10b981","#f97316"
+  const COLORS = PALETTE.categorical || [
+    "#2563eb",
+    "#16a34a",
+    "#f59e0b",
+    "#ef4444",
+    "#8b5cf6",
+    "#0ea5e9",
+    "#10b981",
+    "#f97316",
   ];
 
   return (
@@ -56,6 +80,10 @@ export default function SpendingBreakdownPie({ breakdown = {}, annualSpend = 0, 
           <Legend
             verticalAlign="bottom"
             align="center"
+            wrapperStyle={{
+              fontSize: CHART_TEXT_SIZE,
+              color: CHART_TEXT_COLOR,
+            }}
             formatter={(name, entry) => {
               const pct = entry?.payload?.pct ?? 0;
               return `${name} — ${Math.round(pct * 100)}%`;

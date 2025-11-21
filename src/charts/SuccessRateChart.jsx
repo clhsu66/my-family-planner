@@ -8,6 +8,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
 
 /* =================== Styling / Spacing =================== */
 const COLORS = {
@@ -38,8 +39,8 @@ function LegendRow() {
         gap: 14,
         alignItems: "center",
         justifyContent: "center",
-        fontSize: 16,
-        color: "#374151",
+        fontSize: CHART_TEXT_SIZE,
+        color: CHART_TEXT_COLOR,
         marginTop: 2, // tighten the space under the years
       }}
     >
@@ -85,14 +86,14 @@ export default function SuccessRateChart({ data = [], height = 300 }) {
               dataKey="year"
               tick={X_TICK_PROPS}
               interval={0}
-              style={{ fontSize: 12, fill: "#374151" }}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
             />
 
             <YAxis
               domain={[0, 100]}
               tickFormatter={formatPct}
               width={56}
-              style={{ fontSize: 12, fill: "#374151" }}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
             />
 
             <Tooltip

@@ -12,6 +12,7 @@ import {
   Line,
 } from "recharts";
 import { PALETTE } from "../utils/palette";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
 
 const fmt0 = (n) =>
   (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -75,27 +76,30 @@ export default function TaxesChart({
             interval={0}
             height={46}               // enough for -45° ticks but not too tall
             dy={8}                    // small dy to keep ticks near axis
-            tick={{ fontSize: 12, angle: -45, textAnchor: "end" }}
+            tick={{ fontSize: CHART_TEXT_SIZE, angle: -45, textAnchor: "end" }}
             tickMargin={2}
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
           />
 
           <YAxis
             yAxisId="left"
             width={70}
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: CHART_TEXT_SIZE }}
             tickFormatter={(v) => `$${fmt0(v)}`}
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
           />
           <YAxis
             yAxisId="right"
             orientation="right"
             width={46}
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: CHART_TEXT_SIZE }}
             tickFormatter={(v) =>
               (v ?? 0).toLocaleString(undefined, {
                 style: "percent",
                 maximumFractionDigits: 0,
               })
             }
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
           />
 
           <Tooltip
@@ -109,7 +113,11 @@ export default function TaxesChart({
             verticalAlign="bottom"
             align="center"
             iconType="square"
-            wrapperStyle={{ marginTop: 4 }} // small top margin above legend
+            wrapperStyle={{
+              marginTop: 4, // small top margin above legend
+              fontSize: CHART_TEXT_SIZE,
+              color: CHART_TEXT_COLOR,
+            }}
           />
 
           <Bar

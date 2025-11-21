@@ -10,6 +10,7 @@ import {
   Line,
   Bar,
 } from "recharts";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
 
 // Compact $ axis formatter like $6M, $165k, etc.
 function fmtDollarShort(n) {
@@ -43,7 +44,7 @@ function LegendItem({ color, label, type = "line" }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
       <span style={markerStyle} />
-      <span style={{ fontSize: 16, color: "#374151" }}>{label}</span>
+      <span style={{ fontSize: CHART_TEXT_SIZE, color: CHART_TEXT_COLOR }}>{label}</span>
     </span>
   );
 }
@@ -80,9 +81,14 @@ export default function RealEstateChart({ data = [], height = 340 }) {
               height={40}
               tick={{ angle: -45, textAnchor: "end" }}
               dy={8} // small nudge down so labels clear axis line
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
             />
 
-            <YAxis width={86} tickFormatter={fmtDollarShort} />
+            <YAxis
+              width={86}
+              tickFormatter={fmtDollarShort}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+            />
 
             <Tooltip
               formatter={(v) =>

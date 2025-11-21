@@ -10,6 +10,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { currency } from "../utils/formatters";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
 
 /** Colors (synced) */
 const COLORS = {
@@ -53,8 +54,8 @@ function LegendRow() {
         gap: 14,
         alignItems: "center",
         justifyContent: "center",
-        fontSize: 16,
-        color: "#374151",
+        fontSize: CHART_TEXT_SIZE,
+        color: CHART_TEXT_COLOR,
         marginTop: 2,   // was 8 → reduced gap
       }}
     >
@@ -98,12 +99,12 @@ export default function EducationFundingChart({ data, height = 380 }) {
               dataKey="year"
               tick={X_TICK_PROPS}
               interval={0}
-              style={{ fontSize: 12, fill: "#374151" }}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
             />
             <YAxis
               tickFormatter={(v) => currency(v)}
               width={80}
-              style={{ fontSize: 12, fill: "#374151" }}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
             />
             <Tooltip formatter={(value) => currency(value)} />
 

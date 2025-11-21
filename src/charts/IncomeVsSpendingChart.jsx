@@ -11,13 +11,15 @@ import {
   Line,
 } from "recharts";
 import { currency } from "../utils/formatters";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
+import { PALETTE } from "../utils/palette";
 
 const COLORS = {
-  annuities: "#34d399",
-  social: "#f59e0b",
-  wages: "#3b82f6",
-  withdrawals: "#8b5cf6",
-  spending: "#ef4444",
+  annuities: PALETTE.ann,
+  social: PALETTE.ss,
+  wages: PALETTE.wages,
+  withdrawals: PALETTE.withdrawals,
+  spending: PALETTE.spending,
 };
 
 // How far to push the legend down (away from the years)
@@ -74,8 +76,16 @@ export default function IncomeVsSpendingChart({ data = [], height = 360 }) {
       <ResponsiveContainer>
         <ComposedChart data={rows} margin={MARGIN}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" {...X_TICKS} />
-          <YAxis width={70} tickFormatter={dollarShort} />
+          <XAxis
+            dataKey="year"
+            {...X_TICKS}
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+          />
+          <YAxis
+            width={70}
+            tickFormatter={dollarShort}
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+          />
           <Tooltip
             formatter={(v, name) => [currency(v), name]}
             labelFormatter={(l) => `Year: ${l}`}
@@ -88,6 +98,8 @@ export default function IncomeVsSpendingChart({ data = [], height = 360 }) {
             wrapperStyle={{
               bottom: LEGEND_BOTTOM, // e.g. -32px pushes it below the chart
               position: "absolute",
+              fontSize: CHART_TEXT_SIZE,
+              color: CHART_TEXT_COLOR,
             }}
           />
 

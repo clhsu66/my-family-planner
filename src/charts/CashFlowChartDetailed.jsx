@@ -13,6 +13,8 @@ import {
 
 const fmt = (n) =>
   (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
+import { PALETTE } from "../utils/palette";
 
 /**
  * CashFlowChartDetailed (aligned with Option 2 logic)
@@ -73,13 +75,13 @@ export default function CashFlowChartDetailed({ det = [], height = 380 }) {
   }, [det]);
 
   const COLORS = {
-    wages: "#9CA3AF",
-    ss: "#60A5FA",
-    ann: "#34D399",
-    reCF: "#F59E0B",
-    rmdNet: "#A78BFA",
-    withdrawals: "#F472B6",
-    spendingLine: "#EF4444",
+    wages: PALETTE.wages,
+    ss: PALETTE.ss,
+    ann: PALETTE.ann,
+    reCF: PALETTE.reCF,
+    rmdNet: PALETTE.rmdNet,
+    withdrawals: PALETTE.withdrawals,
+    spendingLine: PALETTE.spending,
   };
 
   // Slightly reduced bottom margin + legend offset so the stack appears vertically centered
@@ -93,19 +95,21 @@ export default function CashFlowChartDetailed({ det = [], height = 380 }) {
 
           <XAxis
             dataKey="year"
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: CHART_TEXT_SIZE }}
             angle={-45}
             textAnchor="end"
             height={70}
             dy={14}
             interval={0}
             tickMargin={10}
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
           />
 
           <YAxis
             tickFormatter={(v) => `$${fmt(v)}`}
             width={70}
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: CHART_TEXT_SIZE }}
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
           />
 
           <Tooltip
@@ -116,7 +120,12 @@ export default function CashFlowChartDetailed({ det = [], height = 380 }) {
           <Legend
             verticalAlign="bottom"
             align="center"
-            wrapperStyle={{ paddingTop: 4, marginTop: 0 }}
+            wrapperStyle={{
+              paddingTop: 4,
+              marginTop: 0,
+              fontSize: CHART_TEXT_SIZE,
+              color: CHART_TEXT_COLOR,
+            }}
           />
 
           <Bar

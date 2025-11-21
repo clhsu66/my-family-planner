@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
 
 export default function ScenarioCompareChart({ series = [], height = 320, currencyFn = (n)=>String(n) }) {
   // Merge by year: {year, [scenarioName]: value}
@@ -28,13 +29,25 @@ export default function ScenarioCompareChart({ series = [], height = 320, curren
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" />
-          <YAxis width={90} tickFormatter={currencyFn} />
+          <XAxis
+            dataKey="year"
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+          />
+          <YAxis
+            width={90}
+            tickFormatter={currencyFn}
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+          />
           <Tooltip
             formatter={(v) => currencyFn(v)}
             labelFormatter={(label) => `Year: ${label}`}
           />
-          <Legend />
+          <Legend
+            wrapperStyle={{
+              fontSize: CHART_TEXT_SIZE,
+              color: CHART_TEXT_COLOR,
+            }}
+          />
           {series.map((s) => (
             <Line
               key={s.name}

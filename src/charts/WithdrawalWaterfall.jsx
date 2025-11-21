@@ -10,12 +10,14 @@ import {
   LabelList,
   Cell,
 } from "recharts";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
+import { PALETTE } from "../utils/palette";
 
 function LegendPill({ color, label }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
       <span style={{ width: 14, height: 14, background: color, borderRadius: 3 }} />
-      <span style={{ fontSize: 14, color: "#374151" }}>{label}</span>
+      <span style={{ fontSize: CHART_TEXT_SIZE, color: CHART_TEXT_COLOR }}>{label}</span>
     </span>
   );
 }
@@ -56,9 +58,9 @@ export default function WithdrawalWaterfall({ latest, height = 320, currencyForm
 
   // colors
   const colorByKind = {
-    income:     "#10b981", // emerald
-    withdrawal: "#3b82f6", // blue
-    shortfall:  "#ef4444", // red
+    income: "#10b981",          // aggregated income
+    withdrawal: PALETTE.withdrawals,
+    shortfall: PALETTE.spending,
   };
 
   // layout: leave a bit more bottom margin for our labels (not a legend)
@@ -74,7 +76,12 @@ export default function WithdrawalWaterfall({ latest, height = 320, currencyForm
             margin={{ left: 72, right: 20, top: 10, bottom: 10 }}
           >
             <XAxis type="number" hide />
-            <YAxis type="category" dataKey="name" width={120} />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={120}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+            />
             <Tooltip formatter={(v) => currencyFormatter(v)} />
             {/* No <Legend /> here on purpose */}
             <Bar dataKey="value">
@@ -85,7 +92,11 @@ export default function WithdrawalWaterfall({ latest, height = 320, currencyForm
                 dataKey="value"
                 position="right"
                 formatter={(v) => currencyFormatter(v)}
-                style={{ fill: "#0ea5e9", fontWeight: 600 }}
+                style={{
+                  fill: "#0ea5e9",
+                  fontWeight: 600,
+                  fontSize: CHART_TEXT_SIZE,
+                }}
               />
             </Bar>
           </BarChart>

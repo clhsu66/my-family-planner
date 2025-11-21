@@ -8,6 +8,8 @@ import {
   Tooltip,
   Line,
 } from "recharts";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
+import { PALETTE } from "../utils/palette";
 
 function fmtDollarShort(n) {
   if (n == null || isNaN(n)) return "$0";
@@ -22,7 +24,7 @@ function LegendItem({ color, label }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
       <span style={{ width: 16, height: 0, borderTop: `3px solid ${color}` }} />
-      <span style={{ fontSize: 16, color: "#374151" }}>{label}</span>
+      <span style={{ fontSize: CHART_TEXT_SIZE, color: CHART_TEXT_COLOR }}>{label}</span>
     </span>
   );
 }
@@ -51,8 +53,13 @@ export default function NetWorthChart({ data = [], height = 380 }) {
               height={40}
               tick={{ angle: -45, textAnchor: "end" }}
               dy={8}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
             />
-            <YAxis width={86} tickFormatter={fmtDollarShort} />
+            <YAxis
+              width={86}
+              tickFormatter={fmtDollarShort}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+            />
             <Tooltip
               formatter={(v) =>
                 new Intl.NumberFormat(undefined, {
@@ -66,7 +73,7 @@ export default function NetWorthChart({ data = [], height = 380 }) {
               type="monotone"
               dataKey="netWorth"
               name="Net Worth"
-              stroke="#0ea5e9"
+              stroke={PALETTE.netWorth}
               strokeWidth={2}
               dot={false}
             />
@@ -84,7 +91,7 @@ export default function NetWorthChart({ data = [], height = 380 }) {
           marginTop: GAP,
         }}
       >
-        <LegendItem color="#0ea5e9" label="Net Worth" />
+        <LegendItem color={PALETTE.netWorth} label="Net Worth" />
       </div>
     </div>
   );

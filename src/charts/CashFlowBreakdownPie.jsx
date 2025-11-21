@@ -1,7 +1,15 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
+import { PALETTE } from "../utils/palette";
 
-const COLORS = ["#60a5fa", "#34d399", "#fbbf24", "#f87171", "#a78bfa"];
+const COLORS = {
+  Income: "#3B82F6",                 // aggregated cash in
+  Spending: PALETTE.spending,        // red
+  Taxes: PALETTE.taxesTotal,         // tax pink
+  Withdrawals: PALETTE.withdrawals,  // portfolio withdrawals
+  Surplus: PALETTE.brokerage,        // goes to brokerage
+};
 
 export default function CashFlowBreakdownPie({ latest }) {
   if (!latest) return null;
@@ -40,7 +48,10 @@ export default function CashFlowBreakdownPie({ latest }) {
           label={renderLabel}
         >
           {rows.map((entry, i) => (
-            <Cell key={`slice-${i}`} fill={COLORS[i % COLORS.length]} />
+            <Cell
+              key={`slice-${i}`}
+              fill={COLORS[entry.name] || PALETTE.categorical[i % PALETTE.categorical.length]}
+            />
           ))}
         </Pie>
         <Tooltip
@@ -49,20 +60,24 @@ export default function CashFlowBreakdownPie({ latest }) {
             return [`$${val.toLocaleString()} (${pct}%)`, name];
           }}
         />
-       <Legend
-  verticalAlign="bottom"
-  height={40}
-  formatter={(value, entry, index) => {
-    const row = rows.find(r => r.name === value);
-    if (!row) return value;
-    const pct = ((row.value / total) * 100).toFixed(1);
-    return (
-      <span style={{ fontSize: 16 }}>
-        {value} ({pct}%)
-      </span>
-    );
-  }}
-/>
+        <Legend
+          verticalAlign="bottom"
+          height={40}
+          wrapperStyle={{
+            fontSize: CHART_TEXT_SIZE,
+            color: CHART_TEXT_COLOR,
+          }}
+          formatter={(value) => {
+            const row = rows.find((r) => r.name === value);
+            if (!row) return value;
+            const pct = ((row.value / total) * 100).toFixed(1);
+            return (
+              <span style={{ fontSize: CHART_TEXT_SIZE, color: CHART_TEXT_COLOR }}>
+                {value} ({pct}%)
+              </span>
+            );
+          }}
+        />
       </PieChart>
     </ResponsiveContainer>
   );

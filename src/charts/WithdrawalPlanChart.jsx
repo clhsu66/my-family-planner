@@ -8,6 +8,8 @@ import {
   Tooltip,
   Bar,
 } from "recharts";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
+import { PALETTE } from "../utils/palette";
 
 function fmtDollarShort(n) {
   if (n == null || isNaN(n)) return "$0";
@@ -22,7 +24,7 @@ function LegendItem({ color, label }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
       <span style={{ width: 12, height: 12, borderRadius: 2, background: color }} />
-      <span style={{ fontSize: 12, color: "#374151" }}>{label}</span>
+      <span style={{ fontSize: CHART_TEXT_SIZE, color: CHART_TEXT_COLOR }}>{label}</span>
     </span>
   );
 }
@@ -46,8 +48,13 @@ export default function WithdrawalPlanChart({ rows = [], height = 360, currencyF
               height={40}
               tick={{ angle: -45, textAnchor: "end" }}
               dy={8}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
             />
-            <YAxis width={86} tickFormatter={fmtDollarShort} />
+            <YAxis
+              width={86}
+              tickFormatter={fmtDollarShort}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+            />
             <Tooltip
               formatter={(v) =>
                 currencyFormatter
@@ -60,10 +67,26 @@ export default function WithdrawalPlanChart({ rows = [], height = 360, currencyF
               }
             />
 
-            <Bar dataKey="taxable"       name="Taxable (Brokerage)" fill="#60a5fa" />
-            <Bar dataKey="cds"           name="CDs/Ladders"        fill="#06b6d4" />
-            <Bar dataKey="deferredGross" name="401k (GROSS)"       fill="#f59e0b" />
-            <Bar dataKey="taxFree"       name="Roth (Tax-Free)"    fill="#34d399" />
+            <Bar
+              dataKey="taxable"
+              name="Taxable (Brokerage)"
+              fill={PALETTE.brokerage}
+            />
+            <Bar
+              dataKey="cds"
+              name="CDs/Ladders"
+              fill={PALETTE.cds}
+            />
+            <Bar
+              dataKey="deferredGross"
+              name="401k (GROSS)"
+              fill={PALETTE.k401}
+            />
+            <Bar
+              dataKey="taxFree"
+              name="Roth (Tax-Free)"
+              fill={PALETTE.roth}
+            />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -78,10 +101,10 @@ export default function WithdrawalPlanChart({ rows = [], height = 360, currencyF
           marginTop: GAP,
         }}
       >
-        <LegendItem color="#60a5fa" label="Taxable (Brokerage)" />
-        <LegendItem color="#06b6d4" label="CDs/Ladders" />
-        <LegendItem color="#f59e0b" label="401k (GROSS)" />
-        <LegendItem color="#34d399" label="Roth (Tax-Free)" />
+        <LegendItem color={PALETTE.brokerage} label="Taxable (Brokerage)" />
+        <LegendItem color={PALETTE.cds} label="CDs/Ladders" />
+        <LegendItem color={PALETTE.k401} label="401k (GROSS)" />
+        <LegendItem color={PALETTE.roth} label="Roth (Tax-Free)" />
       </div>
     </div>
   );

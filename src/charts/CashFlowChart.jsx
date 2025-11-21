@@ -11,6 +11,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { currencyShort } from "../utils/formatters";
+import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
+import { PALETTE } from "../utils/palette";
 
 // ---- local helpers / constants (standalone) ----
 const fmt = currencyShort || ((n) =>
@@ -81,33 +83,66 @@ export default function CashFlowChart({
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis
-                      dataKey="year"
-          angle={-45}
+            dataKey="year"
+            angle={-45}
             textAnchor="end"
-            height={46}    // a bit shorter so labels sit closer to the axis
-            dy={12}        // pull labels up toward the axis
+            height={46} // a bit shorter so labels sit closer to the axis
+            dy={12} // pull labels up toward the axis
             interval={0}
             tickMargin={8}
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
           />
           
           
-          <YAxis tickFormatter={(v) => fmt(v)} />
+          <YAxis
+            tickFormatter={(v) => fmt(v)}
+            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+          />
 
           <Tooltip formatter={tooltipFormatter} />
           <Legend
             verticalAlign="bottom"
             align="center"
-            wrapperStyle={{ bottom: -28 }}   // push the legend further below the chart
+            wrapperStyle={{
+              bottom: -28, // push the legend further below the chart
+              fontSize: CHART_TEXT_SIZE,
+              color: CHART_TEXT_COLOR,
+            }}
             formatter={legendFormatter}
             iconSize={10}
           />
 
           {/* Stacked income/withdrawals up to spending */}
-          <Bar dataKey="wages"       stackId="src" name="Wages"                 fill="#1f77b4" />
-          <Bar dataKey="ss"          stackId="src" name="Social Security"       fill="#2ca02c" />
-          <Bar dataKey="annuities"   stackId="src" name="Annuities"             fill="#ff7f0e" />
-          <Bar dataKey="realEstate"  stackId="src" name="Real Estate CF"        fill="#9467bd" />
-          <Bar dataKey="withdrawals" stackId="src" name="Portfolio Withdrawals" fill="#8c564b" />
+          <Bar
+            dataKey="wages"
+            stackId="src"
+            name="Wages"
+            fill={PALETTE.wages}
+          />
+          <Bar
+            dataKey="ss"
+            stackId="src"
+            name="Social Security"
+            fill={PALETTE.ss}
+          />
+          <Bar
+            dataKey="annuities"
+            stackId="src"
+            name="Annuities"
+            fill={PALETTE.ann}
+          />
+          <Bar
+            dataKey="realEstate"
+            stackId="src"
+            name="Real Estate CF"
+            fill={PALETTE.reCF}
+          />
+          <Bar
+            dataKey="withdrawals"
+            stackId="src"
+            name="Portfolio Withdrawals"
+            fill={PALETTE.withdrawals}
+          />
 
           {/* Shortfall segment (only appears if spending not fully covered) */}
           <Bar
@@ -123,7 +158,7 @@ export default function CashFlowChart({
             type="monotone"
             dataKey="spending"
             name="Total Spending"
-            stroke="#dc2626"
+            stroke={PALETTE.spending}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}

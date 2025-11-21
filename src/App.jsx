@@ -19,6 +19,10 @@ import FinalAllocationSnapshot from "./components/summary/FinalAllocationSnapsho
 import SpendingBreakdownPie from "./charts/SpendingBreakdownPie";
 import WithdrawalWaterfall from "./charts/WithdrawalWaterfall";
 import IncomeCompositionTable from "./components/tables/IncomeCompositionTable";
+import TerminalNetWorthHistogram from "./charts/TerminalNetWorthHistogram";
+import SpendingSafetyChart from "./charts/SpendingSafetyChart";
+import WithdrawalMixChart from "./charts/WithdrawalMixChart";
+import ScenarioCompareChart from "./charts/ScenarioCompareChart";
 
 import Field from "./components/ui/Field";
 import Num from "./components/ui/Num";
@@ -847,6 +851,29 @@ export default function App(){
   }, [taxRateRows]);
 
   const avgEffPct = Math.round(avgEffRate * 100);
+
+  // Monte Carlo terminal net worth values (one per path)
+  const terminalNetWorths = useMemo(
+    () =>
+      (mc.paths || []).map((p) => {
+        const last = p[p.length - 1] || {};
+        return Math.max(0, last.netWorth || 0);
+      }),
+    [mc.paths]
+  );
+
+  // Withdrawal mix over time (percentages by account source)
+  const withdrawalMixRows = useMemo(
+    () =>
+      withdrawRows.map((r) => ({
+        year: r.year,
+        taxable: r.taxable,
+        cds: r.cds,
+        deferredNet: r.deferredNet,
+        taxFree: r.taxFree,
+      })),
+    [withdrawRows]
+  );
     /* ------------------ RENDER ------------------ */
   return (
     <div style={{ background:'#f3f4f6' }}>
@@ -1389,51 +1416,59 @@ export default function App(){
                 (() => {
                   const A = summarizeScenario(compareA);
                   const B = summarizeScenario(compareB);
+                  const series = [
+                    {
+                      name: A.name,
+                      color: "#2563EB",
+                      points: simulatePath(scenarioToParams(compareA) || state).map((r) => ({
+                        year: r.year,
+                        value: r.netWorth || 0,
+                      })),
+                    },
+                    {
+                      name: B.name,
+                      color: "#F97316",
+                      points: simulatePath(scenarioToParams(compareB) || state).map((r) => ({
+                        year: r.year,
+                        value: r.netWorth || 0,
+                      })),
+                    },
+                  ];
                   return (
-                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,fontSize:14}}>
-                      <div style={{border:'1px solid #e5e7eb',borderRadius:10,padding:10}}>
-                        <div style={{fontSize:12,color:'#6b7280',marginBottom:4}}>A</div>
-                        <div style={{fontWeight:600, marginBottom:6}}>{A.name}</div>
-                        <div>Success: <strong>{A.successPct}%</strong></div>
-                        <div>Final Investables: <strong>{currency(A.finalInvestable)}</strong></div>
-                        <div>Final Net Worth: <strong>{currency(A.finalNetWorth)}</strong></div>
-                      </div>
-                      <div style={{border:'1px solid #e5e7eb',borderRadius:10,padding:10}}>
-                        <div style={{fontSize:12,color:'#6b7280',marginBottom:4}}>B</div>
-                        <div style={{fontWeight:600, marginBottom:6}}>{B.name}</div>
-                        <div>Success: <strong>{B.successPct}%</strong></div>
-                        <div>Final Investables: <strong>{currency(B.finalInvestable)}</strong></div>
-                        <div>Final Net Worth: <strong>{currency(B.finalNetWorth)}</strong></div>
+                    <>
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,fontSize:14,marginBottom:8}}>
+                        <div style={{border:'1px solid #e5e7eb',borderRadius:10,padding:10}}>
+                          <div style={{fontSize:12,color:'#6b7280',marginBottom:4}}>A</div>
+                          <div style={{fontWeight:600, marginBottom:6}}>{A.name}</div>
+                          <div>Success: <strong>{A.successPct}%</strong></div>
+                          <div>Final Investables: <strong>{currency(A.finalInvestable)}</strong></div>
+                          <div>Final Net Worth: <strong>{currency(A.finalNetWorth)}</strong></div>
+                        </div>
+                        <div style={{border:'1px solid #e5e7eb',borderRadius:10,padding:10}}>
+                          <div style={{fontSize:12,color:'#6b7280',marginBottom:4}}>B</div>
+                          <div style={{fontWeight:600, marginBottom:6}}>{B.name}</div>
+                          <div>Success: <strong>{B.successPct}%</strong></div>
+                          <div>Final Investables: <strong>{currency(B.finalInvestable)}</strong></div>
+                          <div>Final Net Worth: <strong>{currency(B.finalNetWorth)}</strong></div>
+                        </div>
+
+                        <div style={{gridColumn:'1 / -1',borderTop:'1px solid #f3f4f6',paddingTop:8,display:'flex',gap:18,flexWrap:'wrap',fontSize:13}}>
+                          <span>Δ Success: <strong>{(A.successPct - B.successPct) > 0 ? '+' : ''}{A.successPct - B.successPct}%</strong></span>
+                          <span>Δ Investables: <strong>{currency(A.finalInvestable - B.finalInvestable)}</strong></span>
+                          <span>Δ Net Worth: <strong>{currency(A.finalNetWorth - B.finalNetWorth)}</strong></span>
+                        </div>
                       </div>
 
-                      <div style={{gridColumn:'1 / -1',borderTop:'1px solid #f3f4f6',paddingTop:8,display:'flex',gap:18,flexWrap:'wrap',fontSize:13}}>
-                        <span>Δ Success: <strong>{(A.successPct - B.successPct) > 0 ? '+' : ''}{A.successPct - B.successPct}%</strong></span>
-                        <span>Δ Investables: <strong>{currency(A.finalInvestable - B.finalInvestable)}</strong></span>
-                        <span>Δ Net Worth: <strong>{currency(A.finalNetWorth - B.finalNetWorth)}</strong></span>
-                      </div>
-                    </div>
+                      <ScenarioCompareChart
+                        height={220}
+                        currencyFn={currency}
+                        series={series}
+                      />
+                    </>
                   );
                 })()
               )}
             </div>
-
-            {/* Household Cash Flow */}
-              <div style={panel.card}>
-  <h3 style={{ margin: '0 0 8px', fontWeight: 600 }}>
-    Household Cash Flow — Sources vs Spending
-  </h3>
-  <CashFlowChart
-    det={det}
-    ssTaxablePercent={state.ssTaxablePercent}
-    height={H(500)}  // try 380 or 420 for consistency with other charts
-  />
-</div>
-<div style={panel.card}>
-  <h3 style={{ margin: '0 0 8px', fontWeight: 600 }}>
-    Household Cash Flow (Detailed)
-  </h3>
-  <CashFlowChartDetailed det={det} height={H(420)} />
-</div>
 
             {/* Deterministic — Investable Balances */}
             <div style={panel.card}>
@@ -1454,6 +1489,17 @@ export default function App(){
             <div style={panel.card}>
               <h3 style={{margin:'0 0 8px',fontWeight:600}}>Net Worth Projection</h3>
               <NetWorthChart data={det} height={H(380)} currencyFn={currency} />
+            </div>
+
+            {/* Terminal Net Worth Distribution (Monte Carlo) */}
+            <div style={panel.card}>
+              <h3 style={{ margin: "0 0 8px", fontWeight: 600 }}>
+                Terminal Net Worth Distribution (Monte Carlo)
+              </h3>
+              <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 6 }}>
+                Shows how ending net worth is distributed across all Monte Carlo runs.
+              </div>
+              <TerminalNetWorthHistogram values={terminalNetWorths} height={H(260)} />
             </div>
 
             {/* Final Allocation Snapshot */}
@@ -1488,6 +1534,24 @@ export default function App(){
               />
             </div>
 
+            {/* Household Cash Flow */}
+            <div style={panel.card}>
+              <h3 style={{ margin: "0 0 8px", fontWeight: 600 }}>
+                Household Cash Flow — Sources vs Spending
+              </h3>
+              <CashFlowChart
+                det={det}
+                ssTaxablePercent={state.ssTaxablePercent}
+                height={H(420)}
+              />
+            </div>
+            <div style={panel.card}>
+              <h3 style={{ margin: "0 0 8px", fontWeight: 600 }}>
+                Household Cash Flow (Detailed)
+              </h3>
+              <CashFlowChartDetailed det={det} height={H(400)} />
+            </div>
+
             {/* Withdrawal Waterfall — uses the "Custom year" snapshot */}
 <div style={panel.card}>
   <h3 style={{margin:'0 0 8px',fontWeight:600}}>
@@ -1503,6 +1567,44 @@ export default function App(){
   />
 </div>
 
+            {/* Withdrawal Mix Over Time (By Account Type) */}
+            <div style={panel.card}>
+              <h3 style={{ margin: "0 0 8px", fontWeight: 600 }}>
+                Withdrawal Mix Over Time — By Account Type
+              </h3>
+              <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 6 }}>
+                Stacked area shows what fraction of recommended withdrawals comes from Taxable, CDs, 401k, and Roth each year.
+              </div>
+              <WithdrawalMixChart rows={withdrawalMixRows} height={H(320)} />
+            </div>
+
+            {/* Withdrawal Waterfall */}
+            <div style={panel.card}>
+              <h3 style={{margin:'0 0 8px',fontWeight:600}}>Withdrawal Waterfall</h3>
+              <WithdrawalWaterfall latest={latest} height={H(320)} currencyFormatter={currency} />
+            </div>
+
+            {/* Withdrawal Recommendation */}
+            <div style={panel.card}>
+              <h3 style={{margin:'0 0 8px',fontWeight:600}}>Withdrawal Recommendation (30 Years)</h3>
+              <p style={panel.sub}>Covers spending after non-portfolio income (Wages/SS/Annuities/RE). Sequence: Taxable → CDs → 401k (grossed) → Roth.</p>
+
+              <WithdrawalPlanChart
+                rows={withdrawRows}
+                height={H(360)}
+                currencyFormatter={currency}
+              />
+
+              <WithdrawalPlanTable
+                rows={withdrawRows}
+                formatCurrency={currency}
+                maxRows={30}
+              />
+              <div style={{marginTop:6, fontSize:12, color:'#6b7280'}}>
+                Note: effective ordinary tax rate should reflect Fed + state; this model uses your single blended rate for simplicity.
+              </div>
+            </div>
+
             {/* Real Estate — Value vs Mortgage */}
             <div style={panel.card}>
               <h3 style={{ margin: "0 0 8px", fontWeight: 600 }}>
@@ -1511,10 +1613,15 @@ export default function App(){
               <RealEstateChart data={det} height={H(340)} />
             </div>
 
-            {/* Income vs Spending */}
+            {/* Spending Safety Bands (Monte Carlo) */}
             <div style={panel.card}>
-              <h3 style={{margin:'0 0 8px',fontWeight:600}}>Income vs Spending</h3>
-              <IncomeVsSpendingChart data={det} height={H(360)} />
+              <h3 style={{ margin: "0 0 8px", fontWeight: 600 }}>
+                Spending Safety Bands (Monte Carlo)
+              </h3>
+              <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 6 }}>
+                Target spending vs. an approximate band of &quot;safe&quot; spending based on p10 / p50 / p90 of Monte Carlo balances (assuming a 4% draw rate).
+              </div>
+              <SpendingSafetyChart det={det} perYear={mc.perYear} drawRate={0.04} height={H(340)} />
             </div>
 
             {/* Cash Flow Breakdown — Latest Year */}
@@ -1591,33 +1698,6 @@ export default function App(){
                 annuityTaxablePercent={state.annuityTaxablePercent}
                 height={H(340)}
               />
-            </div>
-                  
-            {/* Withdrawal Waterfall */}
-            <div style={panel.card}>
-              <h3 style={{margin:'0 0 8px',fontWeight:600}}>Withdrawal Waterfall</h3>
-              <WithdrawalWaterfall latest={latest} height={H(320)} currencyFormatter={currency} />
-            </div>
-
-            {/* Withdrawal Recommendation */}
-            <div style={panel.card}>
-              <h3 style={{margin:'0 0 8px',fontWeight:600}}>Withdrawal Recommendation (30 Years)</h3>
-              <p style={panel.sub}>Covers spending after non-portfolio income (Wages/SS/Annuities/RE). Sequence: Taxable → CDs → 401k (grossed) → Roth.</p>
-
-              <WithdrawalPlanChart
-                rows={withdrawRows}
-                height={H(360)}
-                currencyFormatter={currency}
-              />
-
-              <WithdrawalPlanTable
-                rows={withdrawRows}
-                formatCurrency={currency}
-                maxRows={30}
-              />
-              <div style={{marginTop:6, fontSize:12, color:'#6b7280'}}>
-                Note: effective ordinary tax rate should reflect Fed + state; this model uses your single blended rate for simplicity.
-              </div>
             </div>
 
             {/* Tax worksheet */}
