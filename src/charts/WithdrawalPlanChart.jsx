@@ -31,8 +31,12 @@ function LegendItem({ color, label }) {
 
 export default function WithdrawalPlanChart({ rows = [], height = 360, currencyFormatter }) {
   const LEGEND_H = 26;
-  const GAP = 4;
-  const chartH = Math.max(120, Number(height) - LEGEND_H - GAP);
+  const GAP_TOP = 8;
+  const GAP_BOTTOM = 24;
+  const chartH = Math.max(
+    120,
+    Number(height) - LEGEND_H - GAP_TOP - GAP_BOTTOM
+  );
 
   return (
     <div style={{ width: "100%", height }}>
@@ -98,7 +102,8 @@ export default function WithdrawalPlanChart({ rows = [], height = 360, currencyF
           justifyContent: "center",
           alignItems: "center",
           gap: 16,
-          marginTop: GAP,
+          marginTop: GAP_TOP,
+          marginBottom: GAP_BOTTOM,
         }}
       >
         <LegendItem color={PALETTE.brokerage} label="Taxable (Brokerage)" />

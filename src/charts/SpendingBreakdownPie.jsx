@@ -81,6 +81,7 @@ export default function SpendingBreakdownPie({ breakdown = {}, annualSpend = 0, 
             verticalAlign="bottom"
             align="center"
             wrapperStyle={{
+              marginTop: 6,
               fontSize: CHART_TEXT_SIZE,
               color: CHART_TEXT_COLOR,
             }}

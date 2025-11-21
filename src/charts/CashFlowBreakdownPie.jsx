@@ -62,8 +62,8 @@ export default function CashFlowBreakdownPie({ latest }) {
         />
         <Legend
           verticalAlign="bottom"
-          height={40}
           wrapperStyle={{
+            marginTop: 6,
             fontSize: CHART_TEXT_SIZE,
             color: CHART_TEXT_COLOR,
           }}

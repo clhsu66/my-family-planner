@@ -6,7 +6,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   Bar,
   Line,
 } from "recharts";
@@ -22,12 +21,61 @@ const COLORS = {
   spending: PALETTE.spending,
 };
 
-// How far to push the legend down (away from the years)
-const LEGEND_PULL_DOWN = -20;   // px — increase if you want more gap
-const LEGEND_BOTTOM = -LEGEND_PULL_DOWN;
+const LEGEND_HEIGHT = 26;
+const LEGEND_GAP = 4;
 
-// Bottom padding so the pushed-down legend remains visible
-const CONTAINER_PAD_BOTTOM = LEGEND_PULL_DOWN + 3;
+function LegendRow() {
+  const items = [
+    { key: "annuities", label: "Annuities", color: COLORS.annuities },
+    { key: "social", label: "Social Security", color: COLORS.social },
+    { key: "wages", label: "Wages", color: COLORS.wages },
+    {
+      key: "withdrawals",
+      label: "Withdrawals (From Portfolio)",
+      color: COLORS.withdrawals,
+    },
+    {
+      key: "spending",
+      label: "Total Spending",
+      color: COLORS.spending,
+      isLine: true,
+    },
+  ];
+
+  return (
+    <div
+      style={{
+        height: LEGEND_HEIGHT,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 16,
+        flexWrap: "wrap",
+        fontSize: CHART_TEXT_SIZE,
+        color: CHART_TEXT_COLOR,
+        marginTop: LEGEND_GAP,
+      }}
+    >
+      {items.map((it) => (
+        <span
+          key={it.key}
+          style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+        >
+          <span
+            style={{
+              width: it.isLine ? 18 : 12,
+              height: it.isLine ? 2 : 12,
+              background: it.color,
+              borderRadius: it.isLine ? 0 : 2,
+              display: "inline-block",
+            }}
+          />
+          <span>{it.label}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
 
 function dollarShort(n) {
   if (n == null) return "";
@@ -59,8 +107,8 @@ export default function IncomeVsSpendingChart({ data = [], height = 360 }) {
     "Total Spending": Math.max(0, r.totalSpending || 0),
   }));
 
-  // Enough for ticks ONLY; legend will be pushed outside with absolute positioning
-  const MARGIN = { top: 8, right: 18, left: 70, bottom: 56 };
+  // Enough space for ticks; legend is outside
+  const MARGIN = { top: 8, right: 18, left: 70, bottom: 36 };
 
   // Keep year labels near the axis line
   const X_TICKS = {
@@ -71,55 +119,52 @@ export default function IncomeVsSpendingChart({ data = [], height = 360 }) {
     tickMargin: 2,
   };
 
-  return (
-    <div style={{ width: "100%", height, position: "relative", paddingBottom: CONTAINER_PAD_BOTTOM }}>
-      <ResponsiveContainer>
-        <ComposedChart data={rows} margin={MARGIN}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="year"
-            {...X_TICKS}
-            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
-          />
-          <YAxis
-            width={70}
-            tickFormatter={dollarShort}
-            style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
-          />
-          <Tooltip
-            formatter={(v, name) => [currency(v), name]}
-            labelFormatter={(l) => `Year: ${l}`}
-          />
-          <Legend
-            verticalAlign="bottom"
-            align="center"
-            iconType="square"
-            // Move legend DOWN away from years (absolute offset from the chart bottom)
-            wrapperStyle={{
-              bottom: LEGEND_BOTTOM, // e.g. -32px pushes it below the chart
-              position: "absolute",
-              fontSize: CHART_TEXT_SIZE,
-              color: CHART_TEXT_COLOR,
-            }}
-          />
+  const chartHeight = Math.max(
+    140,
+    Number(height) - LEGEND_HEIGHT - LEGEND_GAP
+  );
 
-          <Bar dataKey="Annuities" stackId="cash" fill={COLORS.annuities} />
-          <Bar dataKey="Social Security" stackId="cash" fill={COLORS.social} />
-          <Bar dataKey="Wages" stackId="cash" fill={COLORS.wages} />
-          <Bar
-            dataKey="Withdrawals (From Portfolio)"
-            stackId="cash"
-            fill={COLORS.withdrawals}
-          />
-          <Line
-            type="monotone"
-            dataKey="Total Spending"
-            stroke={COLORS.spending}
-            strokeWidth={2}
-            dot={false}
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
+  return (
+    <div style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ width: "100%", height: chartHeight }}>
+        <ResponsiveContainer>
+          <ComposedChart data={rows} margin={MARGIN}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="year"
+              {...X_TICKS}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+            />
+            <YAxis
+              width={70}
+              tickFormatter={dollarShort}
+              style={{ fontSize: CHART_TEXT_SIZE, fill: CHART_TEXT_COLOR }}
+            />
+            <Tooltip
+              formatter={(v, name) => [currency(v), name]}
+              labelFormatter={(l) => `Year: ${l}`}
+            />
+
+            <Bar dataKey="Annuities" stackId="cash" fill={COLORS.annuities} />
+            <Bar dataKey="Social Security" stackId="cash" fill={COLORS.social} />
+            <Bar dataKey="Wages" stackId="cash" fill={COLORS.wages} />
+            <Bar
+              dataKey="Withdrawals (From Portfolio)"
+              stackId="cash"
+              fill={COLORS.withdrawals}
+            />
+            <Line
+              type="monotone"
+              dataKey="Total Spending"
+              stroke={COLORS.spending}
+              strokeWidth={2}
+              dot={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+
+      <LegendRow />
     </div>
   );
 }

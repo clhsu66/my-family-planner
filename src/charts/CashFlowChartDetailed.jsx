@@ -5,7 +5,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   CartesianGrid,
   Bar,
   Line,
@@ -26,6 +25,70 @@ import { PALETTE } from "../utils/palette";
  *  - det: array of yearly rows from the simulator
  *  - height: number (px)
  */
+const LEGEND_HEIGHT = 26;
+const LEGEND_GAP = 4;
+
+const COLORS = {
+  wages: PALETTE.wages,
+  ss: PALETTE.ss,
+  ann: PALETTE.ann,
+  reCF: PALETTE.reCF,
+  rmdNet: PALETTE.rmdNet,
+  withdrawals: PALETTE.withdrawals,
+  spendingLine: PALETTE.spending,
+};
+
+function LegendRow() {
+  const items = [
+    { key: "wages", label: "Wages", color: COLORS.wages },
+    { key: "ss", label: "Social Security", color: COLORS.ss },
+    { key: "ann", label: "Annuities", color: COLORS.ann },
+    { key: "reCF", label: "Real Estate CF", color: COLORS.reCF },
+    { key: "rmdNet", label: "RMD (net)", color: COLORS.rmdNet },
+    { key: "withdrawals", label: "Withdrawals", color: COLORS.withdrawals },
+    {
+      key: "spendingLine",
+      label: "Total Spending",
+      color: COLORS.spendingLine,
+      isLine: true,
+    },
+  ];
+
+  return (
+    <div
+      style={{
+        height: LEGEND_HEIGHT,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 16,
+        flexWrap: "wrap",
+        fontSize: CHART_TEXT_SIZE,
+        color: CHART_TEXT_COLOR,
+        marginTop: LEGEND_GAP,
+      }}
+    >
+      {items.map((it) => (
+        <span
+          key={it.key}
+          style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+        >
+          <span
+            style={{
+              width: it.isLine ? 18 : 12,
+              height: it.isLine ? 2 : 12,
+              background: it.color,
+              borderRadius: it.isLine ? 0 : 2,
+              display: "inline-block",
+            }}
+          />
+          <span>{it.label}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function CashFlowChartDetailed({ det = [], height = 380 }) {
   const data = useMemo(() => {
     return (det || []).map((r) => {
@@ -74,23 +137,18 @@ export default function CashFlowChartDetailed({ det = [], height = 380 }) {
     });
   }, [det]);
 
-  const COLORS = {
-    wages: PALETTE.wages,
-    ss: PALETTE.ss,
-    ann: PALETTE.ann,
-    reCF: PALETTE.reCF,
-    rmdNet: PALETTE.rmdNet,
-    withdrawals: PALETTE.withdrawals,
-    spendingLine: PALETTE.spending,
-  };
-
-  // Slightly reduced bottom margin + legend offset so the stack appears vertically centered
-  const MARGIN = { top: 12, right: 18, bottom: 18, left: 60 };
+  // Room for angled ticks; legend is outside the chart area
+  const MARGIN = { top: 12, right: 18, bottom: 36, left: 60 };
+  const chartHeight = Math.max(
+    140,
+    Number(height) - LEGEND_HEIGHT - LEGEND_GAP
+  );
 
   return (
-    <div style={{ width: "100%", height }}>
-      <ResponsiveContainer>
-        <ComposedChart data={data} margin={MARGIN}>
+    <div style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ width: "100%", height: chartHeight }}>
+        <ResponsiveContainer>
+          <ComposedChart data={data} margin={MARGIN}>
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis
@@ -115,17 +173,6 @@ export default function CashFlowChartDetailed({ det = [], height = 380 }) {
           <Tooltip
             formatter={(val, name) => [`$${fmt(val)}`, name]}
             labelFormatter={(label) => `Year ${label}`}
-          />
-
-          <Legend
-            verticalAlign="bottom"
-            align="center"
-            wrapperStyle={{
-              paddingTop: 4,
-              marginTop: 0,
-              fontSize: CHART_TEXT_SIZE,
-              color: CHART_TEXT_COLOR,
-            }}
           />
 
           <Bar
@@ -181,7 +228,10 @@ export default function CashFlowChartDetailed({ det = [], height = 380 }) {
             isAnimationActive={false}
           />
         </ComposedChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
+
+      <LegendRow />
     </div>
   );
 }

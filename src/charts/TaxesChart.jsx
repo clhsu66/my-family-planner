@@ -6,13 +6,57 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   CartesianGrid,
   Bar,
   Line,
 } from "recharts";
 import { PALETTE } from "../utils/palette";
 import { CHART_TEXT_COLOR, CHART_TEXT_SIZE } from "../chartUi";
+
+const LEGEND_HEIGHT = 26;
+const LEGEND_GAP = 4;
+
+function LegendRow() {
+  return (
+    <div
+      style={{
+        height: LEGEND_HEIGHT,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 16,
+        flexWrap: "wrap",
+        fontSize: CHART_TEXT_SIZE,
+        color: CHART_TEXT_COLOR,
+        marginTop: LEGEND_GAP,
+      }}
+    >
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+        <span
+          style={{
+            width: 16,
+            height: 0,
+            borderTop: `3px solid ${PALETTE.effRateLine}`,
+            display: "inline-block",
+          }}
+        />
+        <span>Effective Tax Rate</span>
+      </span>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+        <span
+          style={{
+            width: 14,
+            height: 14,
+            borderRadius: 2,
+            background: PALETTE.taxesTotal,
+            display: "inline-block",
+          }}
+        />
+        <span>Total Taxes ($)</span>
+      </span>
+    </div>
+  );
+}
 
 const fmt0 = (n) =>
   (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -27,7 +71,7 @@ export default function TaxesChart({
   ssTaxablePercent = 0.5,
   annuityTaxablePercent = 1,
   height = 340,
-}) {
+  }) {
   const rows = useMemo(() => {
     return (data || []).map((r) => {
       const wages =
@@ -62,13 +106,19 @@ export default function TaxesChart({
     });
   }, [data, ssTaxablePercent, annuityTaxablePercent]);
 
-  // tighter bottom margin to reduce gap between ticks and legend
-  const MARGIN = { top: 12, right: 18, bottom: 0, left: 60 };
+  // Room for angled ticks (legend lives outside)
+  const MARGIN = { top: 12, right: 18, bottom: 36, left: 60 };
+
+  const chartHeight = Math.max(
+    140,
+    Number(height) - LEGEND_HEIGHT - LEGEND_GAP
+  );
 
   return (
-    <div style={{ width: "100%", height }}>
-      <ResponsiveContainer>
-        <ComposedChart data={rows} margin={MARGIN}>
+    <div style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ width: "100%", height: chartHeight }}>
+        <ResponsiveContainer>
+          <ComposedChart data={rows} margin={MARGIN}>
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis
@@ -104,20 +154,11 @@ export default function TaxesChart({
 
           <Tooltip
             formatter={(val, name) =>
-              name === "Effective Tax Rate" ? [pct1(val), name] : [`$${fmt0(val)}`, name]
+              name === "Effective Tax Rate"
+                ? [pct1(val), name]
+                : [`$${fmt0(val)}`, name]
             }
             labelFormatter={(label) => `Year ${label}`}
-          />
-
-          <Legend
-            verticalAlign="bottom"
-            align="center"
-            iconType="square"
-            wrapperStyle={{
-              marginTop: 4, // small top margin above legend
-              fontSize: CHART_TEXT_SIZE,
-              color: CHART_TEXT_COLOR,
-            }}
           />
 
           <Bar
@@ -138,8 +179,11 @@ export default function TaxesChart({
             dot={false}
             isAnimationActive={false}
           />
-        </ComposedChart>
-      </ResponsiveContainer>
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+
+      <LegendRow />
     </div>
   );
 }
